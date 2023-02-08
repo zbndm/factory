@@ -13,11 +13,11 @@ const repoInfo = require('./workspace/tmp/repo-info.json')
   }
 
   const { data: repo } = await axios
-    .get('https://api.github.com/repos/fresh-app/' + project, axiosConfig)
+    .get('https://api.github.com/repos/zbndm/' + project, axiosConfig)
     .catch(async (e) => {
       if (e.response?.status === 404) {
         return axios.post(
-          'https://api.github.com/orgs/fresh-app/repos',
+          'https://api.github.com/orgs/zbndm/repos',
           {
             name: project,
             has_issues: false,
@@ -44,10 +44,10 @@ const repoInfo = require('./workspace/tmp/repo-info.json')
   ensure('has_projects', false)
   ensure('has_wiki', false)
   ensure('is_template', true)
-  ensure('homepage', `https://fresh-app.github.io/${project}`)
+  ensure('homepage', `https://zbndm.github.io/${project}`)
   if (Object.keys(changes).length > 0) {
     await axios.patch(
-      `https://api.github.com/repos/fresh-app/${project}`,
+      `https://api.github.com/repos/zbndm/${project}`,
       changes,
       axiosConfig,
     )
