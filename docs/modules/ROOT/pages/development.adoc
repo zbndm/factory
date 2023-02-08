@@ -1,0 +1,11 @@
+```
+# Build docker image
+bin/build
+
+# Run a factory
+bin/run fresh-vite-app
+
+# Run an interactive shell to inspect runner
+bin/inspect
+```
+

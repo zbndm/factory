@@ -1,0 +1,53 @@
+name: Factory (manual)
+run-name: ${{ inputs.generator }}${{ inputs.dry-run && ' (dry-run)' || '' }}
+on:
+  workflow_dispatch:
+    inputs:
+      generator:
+        description: 'The generator to run'
+        required: true
+      dry-run:
+        description: 'Dry run'
+        type: boolean
+        default: false
+        required: false
+jobs:
+  build:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    env:
+      BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - uses: actions/checkout@v1
+      - uses: docker/setup-buildx-action@v1
+      - uses: docker/build-push-action@v2
+        with:
+          context: runner
+          load: true
+          tags: factory-runner
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Obtain a GitHub App Installation Access Token
+        id: githubAppAuth
+        run: |
+          TOKEN="$(npx obtain-github-app-installation-access-token ci ${{ secrets.GH_APP_CREDENTIALS_TOKEN }})"
+          echo "::add-mask::$TOKEN"
+          echo "::set-output name=token::$TOKEN"
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+      - run: yarn
+      - run: bin/run ${{ github.event.inputs.generator }}
+      - run: yarn node provision ${{ github.event.inputs.generator }}
+        if: '!inputs.dry-run'
+        env:
+          GH_PUSH_TOKEN: ${{ steps.githubAppAuth.outputs.token }}
+      - run: bash sync.sh
+        if: '!inputs.dry-run'
+        env:
+          GH_PUSH_TOKEN: ${{ steps.githubAppAuth.outputs.token }}
+      - run: yarn factory upload-result
+        if: '!inputs.dry-run'
+        env:
+          GH_PUSH_TOKEN: ${{ steps.githubAppAuth.outputs.token }}

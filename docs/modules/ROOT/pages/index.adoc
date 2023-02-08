@@ -1,0 +1,4 @@
+= Fresh App Factory
+:experimental:
+
+https://github.com/fresh-app/factory[Fresh App Factory] is a project that generates https://github.com/fresh-app[template repositories] for popular project boilerplate generators.
